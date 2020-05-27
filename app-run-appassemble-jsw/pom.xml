@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>maven-plugins</artifactId>
+        <groupId>org.example</groupId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>app-appassemble-jsw</artifactId>
+    <version>1.0-SNAPSHOT</version>
+
+    <properties>
+        <appName>bootstrap</appName>
+        <appassembler.directory>${project.build.directory}/appassembler</appassembler.directory>
+    </properties>
+
+    <build>
+        <plugins>
+            <plugin>
+                <!-- 这个插件生成的结果:${appassembler.directory}/jsw/${appName}下，即可运行。 -->
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>appassembler-maven-plugin</artifactId>
+                <version>2.1.0</version>
+                <configuration>
+                    <repositoryLayout>flat</repositoryLayout>
+                    <generateRepository>true</generateRepository>
+                    <repositoryName>lib</repositoryName>
+                    <configurationDirectory>conf</configurationDirectory>
+                    <copyConfigurationDirectory>true</copyConfigurationDirectory>
+                    <!--                    <configurationSourceDirectory>src/main/resources</configurationSourceDirectory>-->
+                    <includeConfigurationDirectoryInClasspath>true</includeConfigurationDirectoryInClasspath>
+                    <logsDirectory>logs</logsDirectory>
+                    <assembleDirectory>${appassembler.directory}</assembleDirectory>
+                    <binFileExtensions>
+                        <unix>.sh</unix>
+                    </binFileExtensions>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>exe-with-jsw</id>
+                        <goals>
+                            <goal>generate-daemons</goal>
+                        </goals>
+                        <configuration>
+                            <daemons>
+                                <daemon>
+                                    <id>${appName}</id>
+                                    <mainClass>org.jsw.example.App</mainClass>
+                                    <platforms>
+                                        <platform>jsw</platform>
+                                    </platforms>
+                                    <generatorConfigurations>
+                                        <generatorConfiguration>
+                                            <generator>jsw</generator>
+                                            <configuration>
+                                                <property>
+                                                    <!-- 这儿会输出stdout的日志 -->
+                                                    <!-- logback的配置会被打包进jar中，注意修改配置要找到地方 -->
+                                                    <name>wrapper.logfile</name>
+                                                    <value>%BASEDIR%/logs/wrapper.log</value>
+                                                </property>
+                                                <property>
+                                                    <name>wrapper.logfile</name>
+                                                    <value>%BASEDIR%/logs/wrapper.YYYYMMDD.log</value>
+                                                </property>
+                                                <property>
+                                                    <name>wrapper.logfile.rollmode</name>
+                                                    <value>DATE</value>
+                                                </property>
+                                                <property>
+                                                    <name>wrapper.console.loglevel</name>
+                                                    <value>INFO</value>
+                                                </property>
+                                            </configuration>
+                                            <includes>
+                                                <include>linux-x86-64</include>
+                                                <!--                                                <include>linux-x86-32</include>-->
+                                                <!--                                                <include>aix-ppc-32</include>-->
+                                                <!--                                                <include>aix-ppc-64</include>-->
+                                                <!--                                                <include>hpux-parisc-64</include>-->
+                                                <!--                                                <include>linux-ppc-64</include>-->
+                                                <!--                                                <include>macosx-ppc-32</include>-->
+                                                <!--                                                <include>macosx-x86-universal-32</include>-->
+                                                <!--                                                <include>macosx-universal-32</include>-->
+                                                <!--                                                <include>macosx-universal-64</include>-->
+                                                <!--                                                <include>solaris-sparc-32</include>-->
+                                                <!--                                                <include>solaris-sparc-64</include>-->
+                                                <!--                                                <include>solaris-x86-32</include>-->
+                                                <!--                                                <include>windows-x86-32</include>-->
+                                                <!--                                                <include>windows-x86-64</include>-->
+                                            </includes>
+                                        </generatorConfiguration>
+                                    </generatorConfigurations>
+                                    <jvmSettings>
+                                        <initialMemorySize>64M</initialMemorySize>
+                                        <maxMemorySize>256M</maxMemorySize>
+                                        <extraArguments>
+                                            <extraArgument>-Dcom.sun.management.jmxremote.authenticate=false
+                                            </extraArgument>
+                                            <extraArgument>-Dcom.sun.management.jmxremote.port=9010</extraArgument>
+                                            <extraArgument>-Dcom.sun.management.jmxremote.ssl=false</extraArgument>
+                                            <extraArgument>-XX:MaxMetaspaceSize=256M</extraArgument>
+                                            <extraArgument>-XX:MetaspaceSize=256M</extraArgument>
+                                            <extraArgument>-Xloggc:logs/gc.log.%t</extraArgument>
+                                            <extraArgument>-verbose:gc</extraArgument>
+                                            <extraArgument>-XX:+PrintGCDetails</extraArgument>
+                                            <extraArgument>-XX:+PrintGCDateStamps</extraArgument>
+                                            <extraArgument>-XX:+UseGCLogFileRotation</extraArgument>
+                                            <extraArgument>-XX:NumberOfGCLogFiles=3</extraArgument>
+                                            <extraArgument>-XX:GCLogFileSize=200M</extraArgument>
+                                            <extraArgument>-XX:+UseG1GC</extraArgument>
+                                            <extraArgument>-server</extraArgument>
+                                        </extraArguments>
+                                        <systemProperties>
+                                            <systemProperty>basedir=%BASEDIR%</systemProperty>
+                                        </systemProperties>
+                                    </jvmSettings>
+                                    <commandLineArguments>
+                                        <commandLineArgument/>
+                                    </commandLineArguments>
+                                </daemon>
+                            </daemons>
+                            <target>${appassembler.directory}</target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <!-- 打包成单个文件方便传输部署 -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>assembly</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                        <configuration>
+                            <appendAssemblyId>false</appendAssemblyId>
+                            <attach>true</attach>
+                            <tarLongFileMode>gnu</tarLongFileMode>
+                            <descriptors>
+                                <descriptor>${project.basedir}/src/main/assembly/bin.xml</descriptor>
+                            </descriptors>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
